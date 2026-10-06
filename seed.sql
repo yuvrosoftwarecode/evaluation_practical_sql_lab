@@ -1,41 +1,147 @@
-CREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT, email TEXT);
-INSERT INTO customers (id, name, email) VALUES (1, 'John Doe', 'john@example.com'), (2, 'Jane Smith', 'jane@example.com'), (3, 'Bob Johnson', 'bob@example.com');
+-- Database initialization and seed script for E-Commerce SQL Investigation Lab
+-- Database: ecommerce_evaluation
+-- Target Database: defaultdb (or active connected database)
 
-CREATE TABLE orders (id INTEGER PRIMARY KEY, customer_id INTEGER, amount REAL, order_date TEXT);
-INSERT INTO orders (id, customer_id, amount, order_date) VALUES (1, 1, 500.00, '2023-01-01'), (2, 2, 450.00, '2023-01-02'), (3, 3, 400.00, '2023-01-03');
+-- Drop child tables first to respect foreign keys
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS customers;
 
-CREATE TABLE departments (id INTEGER PRIMARY KEY, name TEXT);
-INSERT INTO departments (id, name) VALUES (1, 'IT'), (2, 'Sales');
+-- -------------------------------------------------------------
+-- Table 1: customers
+-- -------------------------------------------------------------
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    city VARCHAR(80) NOT NULL,
+    signup_date DATE NOT NULL
+);
 
-CREATE TABLE employees (id INTEGER PRIMARY KEY, name TEXT, salary REAL, department_id INTEGER);
-INSERT INTO employees (id, name, salary, department_id) VALUES (1, 'Alice', 80000, 1), (2, 'Bob', 60000, 1), (3, 'Charlie', 70000, 2), (4, 'David', 50000, 2);
+-- -------------------------------------------------------------
+-- Table 2: products
+-- -------------------------------------------------------------
+CREATE TABLE products (
+    product_id INT PRIMARY KEY,
+    product_name VARCHAR(100) NOT NULL,
+    category VARCHAR(80) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    stock_quantity INT NOT NULL
+);
 
-CREATE TABLE transactions (transaction_id INTEGER PRIMARY KEY, amount REAL, transaction_date TEXT);
-INSERT INTO transactions (transaction_id, amount, transaction_date) VALUES (1, 100.00, '2023-10-01'), (2, 150.00, '2023-10-02'), (3, 200.00, '2023-10-03'), (4, 50.00, '2023-10-04'), (5, 300.00, '2023-10-05'), (6, 100.00, '2023-10-06'), (7, 153.50, '2023-10-07'), (8, 166.50, '2023-10-08');
+-- -------------------------------------------------------------
+-- Table 3: orders
+-- -------------------------------------------------------------
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT NOT NULL,
+    order_date DATE NOT NULL,
+    status VARCHAR(30) NOT NULL,
+    FOREIGN KEY (customer_id)   w REFERENCES customers(customer_id)
+);
 
-CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, category TEXT);
-INSERT INTO products (id, name, category) VALUES (101, 'Old Widget', 'Gadgets'), (105, 'Discontinued Gadget', 'Gadgets'), (102, 'New Widget', 'Gadgets');
+-- -------------------------------------------------------------
+-- Table 4: order_items
+-- -------------------------------------------------------------
+CREATE TABLE order_items (
+    order_item_id INT PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
 
-CREATE TABLE sales (id INTEGER PRIMARY KEY, product_id INTEGER, sale_date TEXT, quantity INTEGER);
-INSERT INTO sales (id, product_id, sale_date, quantity) VALUES (1, 102, date('now', '-1 month'), 10);
+-- -------------------------------------------------------------
+-- Seed Data: customers (12 customers across diverse cities)
+-- -------------------------------------------------------------
+INSERT INTO customers (customer_id, full_name, email, city, signup_date) VALUES
+(1, 'Alice Johnson', 'alice.johnson@example.com', 'New York', '2023-01-15'),
+(2, 'Bob Smith', 'bob.smith@example.com', 'Los Angeles', '2023-02-20'),
+(3, 'Charlie Davis', 'charlie.davis@example.com', 'Chicago', '2023-03-10'),
+(4, 'Diana Evans', 'diana.evans@example.com', 'Houston', '2023-04-05'),
+(5, 'Evan Wright', 'evan.wright@example.com', 'Phoenix', '2023-05-12'),
+(6, 'Fiona Green', 'fiona.green@example.com', 'Philadelphia', '2023-06-18'),
+(7, 'George Harris', 'george.harris@example.com', 'San Antonio', '2023-07-22'),
+(8, 'Hannah Martin', 'hannah.martin@example.com', 'San Diego', '2023-08-14'),
+(9, 'Ian Clark', 'ian.clark@example.com', 'Dallas', '2023-09-01'),
+(10, 'Julia Lewis', 'julia.lewis@example.com', 'San Jose', '2023-10-10'),
+(11, 'Kevin Hall', 'kevin.hall@example.com', 'Austin', '2023-11-05'),
+(12, 'Laura Allen', 'laura.allen@example.com', 'Jacksonville', '2023-12-01');
 
-CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT);
-INSERT INTO users (id, username) VALUES (1, 'influencer_x'), (2, 'superfan1'), (3, 'loyal_follower'), (4, 'casual_user');
+-- -------------------------------------------------------------
+-- Seed Data: products (10 products across 4 categories)
+-- Categories: Electronics, Accessories, Home, Books
+-- -------------------------------------------------------------
+INSERT INTO products (product_id, product_name, category, price, stock_quantity) VALUES
+(1, 'Pro Laptop 15-inch', 'Electronics', 1200.00, 25),
+(2, 'Noise-Cancelling Headphones', 'Electronics', 250.00, 40),
+(3, 'Wireless Ergonomic Mouse', 'Accessories', 50.00, 100),
+(4, 'Mechanical USB Keyboard', 'Accessories', 100.00, 60),
+(5, '4K Ultra HD Monitor', 'Electronics', 400.00, 30),
+(6, 'Smart Coffee Maker', 'Home', 150.00, 20),
+(7, 'Ergonomic Desk Chair', 'Home', 300.00, 15),
+(8, 'Mastering SQL Handbook', 'Books', 45.00, 80),
+(9, 'Cloud Computing Guide', 'Books', 55.00, 50),
+(10, 'USB-C Multiport Hub', 'Accessories', 60.00, 75);
 
-CREATE TABLE posts (id INTEGER PRIMARY KEY, author_id INTEGER, content TEXT);
-INSERT INTO posts (id, author_id, content) VALUES (1, 1, 'Hello World'), (2, 1, 'Another post');
+-- -------------------------------------------------------------
+-- Seed Data: orders (18 orders: completed, pending, cancelled)
+-- -------------------------------------------------------------
+INSERT INTO orders (order_id, customer_id, order_date, status) VALUES
+(1, 1, '2023-02-01', 'completed'),
+(2, 1, '2023-03-15', 'completed'),
+(3, 2, '2023-03-01', 'completed'),
+(4, 2, '2023-04-10', 'completed'),
+(5, 2, '2023-05-05', 'pending'),
+(6, 3, '2023-04-15', 'completed'),
+(7, 3, '2023-05-20', 'completed'),
+(8, 4, '2023-05-01', 'completed'),
+(9, 4, '2023-06-12', 'cancelled'),
+(10, 5, '2023-06-01', 'completed'),
+(11, 6, '2023-07-04', 'pending'),
+(12, 7, '2023-08-01', 'cancelled'),
+(13, 7, '2023-08-15', 'cancelled'),
+(14, 8, '2023-09-02', 'completed'),
+(15, 8, '2023-09-25', 'pending'),
+(16, 9, '2023-10-05', 'pending'),
+(17, 9, '2023-10-20', 'cancelled'),
+(18, 1, '2023-11-10', 'completed');
 
-CREATE TABLE likes (user_id INTEGER, post_id INTEGER);
-INSERT INTO likes (user_id, post_id) VALUES (2, 1), (2, 2), (3, 1), (3, 2), (4, 1);
-
-CREATE TABLE patients (id INTEGER PRIMARY KEY, name TEXT);
-INSERT INTO patients (id, name) VALUES (1, 'Mary'), (2, 'John');
-
-CREATE TABLE visits (id INTEGER PRIMARY KEY, patient_id INTEGER, visit_date TEXT);
-INSERT INTO visits (id, patient_id, visit_date) VALUES (1, 1, '2023-11-01'), (2, 1, '2023-11-15'), (3, 2, '2023-11-05');
-
-CREATE TABLE students (id INTEGER PRIMARY KEY, name TEXT);
-INSERT INTO students (id, name) VALUES (1, 'Alice'), (2, 'Bob');
-
-CREATE TABLE grades (id INTEGER PRIMARY KEY, student_id INTEGER, course TEXT, grade REAL);
-INSERT INTO grades (id, student_id, course, grade) VALUES (1, 1, 'Math', 90), (2, 1, 'Science', 85), (3, 2, 'Math', 70), (4, 2, 'Science', 80);
+-- -------------------------------------------------------------
+-- Seed Data: order_items (29 order items)
+-- Includes historical unit_price differences, products never ordered (10),
+-- and orders with multiple products.
+-- -------------------------------------------------------------
+INSERT INTO order_items (order_item_id, order_id, product_id, quantity, unit_price) VALUES
+(1, 1, 1, 2, 1150.00),
+(2, 1, 3, 2, 50.00),
+(3, 2, 5, 2, 400.00),
+(4, 2, 2, 2, 240.00),
+(5, 18, 1, 2, 1200.00),
+(6, 18, 4, 2, 100.00),
+(7, 3, 1, 2, 1200.00),
+(8, 3, 2, 2, 250.00),
+(9, 4, 6, 2, 140.00),
+(10, 4, 7, 8, 300.00),
+(11, 5, 2, 3, 250.00),
+(12, 6, 5, 1, 400.00),
+(13, 6, 4, 1, 100.00),
+(14, 7, 8, 6, 45.00),
+(15, 7, 7, 3, 300.00),
+(16, 8, 1, 4, 1200.00),
+(17, 8, 3, 6, 50.00),
+(18, 8, 4, 2, 100.00),
+(19, 9, 1, 3, 1200.00),
+(20, 10, 6, 2, 150.00),
+(21, 10, 2, 2, 250.00),
+(22, 11, 9, 2, 55.00),
+(23, 12, 5, 2, 400.00),
+(24, 13, 4, 4, 100.00),
+(25, 14, 8, 2, 45.00),
+(26, 14, 9, 2, 55.00),
+(27, 15, 3, 5, 50.00),
+(28, 16, 1, 1, 1200.00),
+(29, 17, 2, 1, 250.00);

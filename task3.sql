@@ -1,0 +1,2 @@
+-- Task 3: Customers Who Have Never Placed a Completed Order
+-- Write your SQL query below:
