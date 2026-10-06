@@ -38,7 +38,7 @@ CREATE TABLE orders (
     customer_id INT NOT NULL,
     order_date DATE NOT NULL,
     status VARCHAR(30) NOT NULL,
-    FOREIGN KEY (customer_id)   w REFERENCES customers(customer_id)
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
 );
 
 -- -------------------------------------------------------------
