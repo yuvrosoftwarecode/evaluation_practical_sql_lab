@@ -1,0 +1,2 @@
+-- Task 3: Course Enrollment Analysis
+-- Write your PostgreSQL query below:

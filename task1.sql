@@ -1,0 +1,2 @@
+-- Task 1: Student Performance Report
+-- Write your PostgreSQL query below:

@@ -1,0 +1,2 @@
+-- Task 2: Top Student in Each Department
+-- Write your PostgreSQL query below:
